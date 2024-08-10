@@ -11,14 +11,18 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.diegocardoza.personroomapp.R
 import com.diegocardoza.personroomapp.presentation.navigation.Home
 import com.diegocardoza.personroomapp.presentation.navigation.PersonDetail
@@ -38,20 +42,34 @@ class MainActivity : ComponentActivity() {
             PersonROOMAppTheme {
                 Scaffold(
                     topBar = {
-                        CenterAlignedTopAppBar(title = {
-                            Text(text = getString(R.string.app_name))
-                        })
+                        CenterAlignedTopAppBar(
+                            colors = TopAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                scrolledContainerColor = Color.White,
+                                navigationIconContentColor = Color.White,
+                                titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                actionIconContentColor = Color.White
+                            ),
+                            title = {
+                                Text(text = getString(R.string.app_name))
+                            }
+                        )
                     },
                     floatingActionButton = {
-                        FloatingActionButton(
-                            onClick = {
-                                navController.navigate(PersonDetail(-1))
+                        val currentBackStackEntry by navController.currentBackStackEntryAsState()
+                        currentBackStackEntry?.destination?.let { currentDestination ->
+                            if (currentDestination.hasRoute<Home>()) {
+                                FloatingActionButton(
+                                    onClick = {
+                                        navController.navigate(PersonDetail(-1))
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Add,
+                                        contentDescription = "Add a person"
+                                    )
+                                }
                             }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Add,
-                                contentDescription = "Add a person"
-                            )
                         }
                     }
                 ) { paddingValues ->
