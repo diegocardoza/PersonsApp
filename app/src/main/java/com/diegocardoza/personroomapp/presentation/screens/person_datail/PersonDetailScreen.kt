@@ -14,8 +14,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -30,13 +28,6 @@ fun PersonDetailScreen(
     viewModel: PersonDetailViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    val name by remember {
-        viewModel.name
-    }
-    val lastname by remember {
-        viewModel.lastname
-    }
-
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collectLatest { event ->
             when (event) {
@@ -62,7 +53,7 @@ fun PersonDetailScreen(
                 label = {
                     Text(text = "Type name...")
                 },
-                value = name,
+                value = viewModel.state.name,
                 onValueChange = { viewModel.onEvent(PersonDetailEvent.OnChangeName(it)) },
                 maxLines = 1,
                 singleLine = true,
@@ -74,7 +65,7 @@ fun PersonDetailScreen(
                 label = {
                     Text(text = "Type lastname...")
                 },
-                value = lastname,
+                value = viewModel.state.lastname,
                 onValueChange = { viewModel.onEvent(PersonDetailEvent.OnChangeLastname(it)) },
                 maxLines = 1,
                 singleLine = true,

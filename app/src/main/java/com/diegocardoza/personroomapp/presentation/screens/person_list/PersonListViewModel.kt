@@ -1,7 +1,8 @@
 package com.diegocardoza.personroomapp.presentation.screens.person_list
 
-import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.diegocardoza.personroomapp.domain.use_cases.DeletePersonByIdUseCase
@@ -18,12 +19,12 @@ class PersonListViewModel @Inject constructor(
     private val deletePersonByIdUseCase: DeletePersonByIdUseCase
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(PersonListState())
-    val state: State<PersonListState> = _state
+    var state by mutableStateOf(PersonListState())
+        private set
 
     init {
         getPersonsUseCase().onEach { persons ->
-            _state.value = _state.value.copy(
+            state = state.copy(
                 persons = persons
             )
         }.launchIn(viewModelScope)
