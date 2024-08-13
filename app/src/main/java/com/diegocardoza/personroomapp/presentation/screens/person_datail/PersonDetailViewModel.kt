@@ -1,8 +1,8 @@
 package com.diegocardoza.personroomapp.presentation.screens.person_datail
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,31 +20,29 @@ import javax.inject.Inject
 class PersonDetailViewModel @Inject constructor(
     private val getPersonByIdUseCase: GetPersonByIdUseCase,
     private val insertPersonUseCase: InsertPersonUseCase,
-    private val savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private var _name: MutableState<String> = mutableStateOf("")
-    val name: State<String> = _name
+    var state by mutableStateOf(PersonDetailState())
+        private set
 
-    private var _lastname: MutableState<String> = mutableStateOf("")
-    val lastname: State<String> = _lastname
-
-    var _uiEvent = MutableSharedFlow<PersonDetailUiEvent>()
+    private var _uiEvent = MutableSharedFlow<PersonDetailUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
-
-    private var currentPersonId: Int? = null
 
     init {
         savedStateHandle.get<Int>("personId")?.let { personId ->
             viewModelScope.launch {
-                getPersonByIdUseCase(personId)?.let { person ->
-                    currentPersonId = person.id
-                    _name.value = person.name
-                    _lastname.value = person.lastName
+                if (personId != -1) {
+                    getPersonByIdUseCase(personId)?.let { person ->
+                        state = state.copy(
+                            id = person.id,
+                            name = person.name,
+                            lastname = person.lastName
+                        )
+                    }
                 }
             }
         }
-
     }
 
     fun onEvent(event: PersonDetailEvent) {
@@ -53,17 +51,17 @@ class PersonDetailViewModel @Inject constructor(
                 viewModelScope.launch(Dispatchers.IO) {
                     val personItem =
                         PersonItem(
-                            id = currentPersonId,
-                            name = _name.value,
-                            lastName = _lastname.value
+                            id = state.id,
+                            name = state.name,
+                            lastName = state.lastname
                         )
                     insertPersonUseCase(personItem)
                     _uiEvent.emit(PersonDetailUiEvent.SavePersonTapped)
                 }
             }
 
-            is PersonDetailEvent.OnChangeLastname -> _lastname.value = event.lastname
-            is PersonDetailEvent.OnChangeName -> _name.value = event.name
+            is PersonDetailEvent.OnChangeLastname -> state = state.copy(lastname = event.lastname)
+            is PersonDetailEvent.OnChangeName -> state = state.copy(name = event.name)
         }
     }
 

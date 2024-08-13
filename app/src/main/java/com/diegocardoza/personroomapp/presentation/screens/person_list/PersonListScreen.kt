@@ -13,7 +13,7 @@ fun PersonListScreen(
     viewModel: PersonListViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    val state = viewModel.state.value
+    val state = viewModel.state
     PersonList(
         modifier = modifier,
         state = state,
